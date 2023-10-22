@@ -1,0 +1,13 @@
+.signInForm {
+    width: 100%;
+    margin: 0 auto;
+}
+
+.inputPrefixIcon {
+    color: rgb(128, 128, 128);
+}
+
+.signInBtn {
+    width: 100%;
+    margin-top: 10px;
+}

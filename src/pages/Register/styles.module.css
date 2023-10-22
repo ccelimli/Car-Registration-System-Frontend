@@ -1,0 +1,15 @@
+.signUpArea {
+    width: 30vw;
+    border: 3px solid whitesmoke;
+    border-radius: 10px;
+}
+
+.signUpHeader {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.signInLink {
+    font-size: medium;
+    color: mediumblue;
+}
