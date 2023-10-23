@@ -1,21 +1,25 @@
 import {message, Modal, Typography} from "antd";
+import {useDispatch} from "react-redux";
+import {deleteCar} from "../../redux/carSlice.js";
 
 // eslint-disable-next-line react/prop-types
 const CarDeleteModal = ({isDeleteModalOpen,setIsDeleteModalOpen, deleteCarId}) => {
     const [messageApi, contextHolder] = message.useMessage();
     const key = 'deleteCar';
+    const dispatch = useDispatch()
 
     const {Title, Text} = Typography
 
-    const handleDeleteOk = async ()=> {
+    const handleDeleteOk = async () => {
         messageApi.open({
             key,
             type: 'loading',
             content: 'The delete is in progress...'
         })
 
-        try {
-            setTimeout(() => {
+        dispatch(deleteCar({id: deleteCarId}))
+    .then((result) => {
+            if (result.payload.success) {
                 messageApi.open({
                     key,
                     type: 'success',
@@ -23,10 +27,11 @@ const CarDeleteModal = ({isDeleteModalOpen,setIsDeleteModalOpen, deleteCarId}) =
                     duration: 2
                 })
                 setIsDeleteModalOpen(false)
-            }, 1000)
-            console.log(JSON.stringify(deleteCarId))
-        } catch (error) {
-            setTimeout(() => {
+                window.location.reload()
+            }
+        })
+            .catch((error) => {
+                console.log(error)
                 messageApi.open({
                     key,
                     type: 'error',
@@ -34,8 +39,7 @@ const CarDeleteModal = ({isDeleteModalOpen,setIsDeleteModalOpen, deleteCarId}) =
                     duration: 2
                 })
                 setIsDeleteModalOpen(false)
-            }, 2000)
-        }
+            })
     }
 
     const handleDeleteCancel = () => {

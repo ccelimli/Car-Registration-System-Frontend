@@ -5,6 +5,7 @@ import Login from "./pages/Login/index.jsx";
 import Register from "./pages/Register/index.jsx";
 import ChangePassword from "./pages/ChangePassword/index.jsx";
 import NotFoundPage from "./pages/NotFoundPage/index.jsx";
+import AuthRoute from "./components/PrivateRoutes/AuthRoute.jsx";
 
 const App = () => {
   return (
@@ -12,8 +13,8 @@ const App = () => {
         <Route path="/" element={<HomeLayout/>}>
             <Route index={true} element={<Login/>}/>
             <Route path="register" element={<Register/>}/>
-            <Route path="home" element={<Home/>}/>
-            <Route path="changePassword" element={<ChangePassword/>}/>
+            <Route path="home" element={<AuthRoute><Home/></AuthRoute>}/>
+            <Route path="changePassword" element={<AuthRoute><ChangePassword/></AuthRoute>}/>
             <Route path="*" element={<NotFoundPage/>}/>
         </Route>
     </Routes>

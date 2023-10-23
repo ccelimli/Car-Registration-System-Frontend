@@ -1,4 +1,6 @@
 import {Modal, Typography, Button, Col, Divider, Flex, Form, Input, message, Row} from "antd"
+import {useDispatch} from "react-redux";
+import {addCar} from "../../redux/carSlice.js";
 
 const {Title} = Typography
 
@@ -7,37 +9,52 @@ const CarAddModal = ({setIsAddModalOpen, isAddModalOpen}) => {
     const [form] = Form.useForm()
     const [messageApi, contextHolder] = message.useMessage();
     const key = 'addCar'
+    const dispatch = useDispatch()
 
     const onFinish = async (values) => {
+        const data = localStorage.getItem("isAuth")
+        const parseData = data !== null ? JSON.parse(data) : null
+
+        const addCarData = {
+            userId: parseData?.userId,
+            ...values
+        }
+
         messageApi.open({
             key,
             type: 'loading',
             content: 'The add is in progress...'
         })
 
-        try {
-            setTimeout(() => {
-                messageApi.open({
-                    key,
-                    type: 'success',
-                    content: 'Add process successful',
-                    duration: 2
-                })
-                setIsAddModalOpen(false)
-                form.resetFields()
-            }, 1000)
-            console.log(JSON.stringify(values))
-        } catch (error) {
-            setTimeout(() => {
-                messageApi.open({
-                    key,
-                    type: 'error',
-                    content: `Add process failed. Error :  ${error}`,
-                    duration: 2
-                })
-                setIsAddModalOpen(false)
-            }, 2000)
-        }
+        dispatch(addCar(addCarData))
+            .then((add) => {
+                console.log(add)
+                if (add.payload.success) {
+                    setTimeout(() => {
+                        messageApi.open({
+                            key,
+                            type: 'success',
+                            content: 'Add process successful',
+                            duration: 2
+                        })
+                        setIsAddModalOpen(false)
+                        window.location.reload()
+                        form.resetFields()
+                    }, 1500)
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+                setTimeout(() => {
+                    messageApi.open({
+                        key,
+                        type: 'error',
+                        content: `Add process failed. Error :  ${error}`,
+                        duration: 2
+                    })
+                    setIsAddModalOpen(false)
+                }, 1500)
+            })
     }
     const handleAddOk = () => {
         setIsAddModalOpen(false)

@@ -1,11 +1,11 @@
 import {useEffect, useState} from 'react'
 import {Layout, Button, theme, Flex, Typography, Divider, Table, Row, Col} from 'antd'
 import {DeleteFilled, EditFilled} from '@ant-design/icons'
-import {useDispatch, useSelector} from "react-redux";
+import {useDispatch} from "react-redux";
 import CarEditModal from "../CarEditModal"
 import CarDeleteModal from "../CarDeleteModal"
 import CarAddModal from "../CarAddModal"
-import {loadData, setSelectedCar} from "../../redux/carSlice.js";
+import {getAllCars, setSelectedCar} from "../../redux/carSlice.js";
 
 const {  Content } = Layout
 const {Title} = Typography
@@ -15,13 +15,25 @@ const HomeContent = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
     const [isAddModalOpen, setIsAddModalOpen] = useState(false)
     const [deleteCarId, setDeleteCarId] = useState()
+    const [cars, setCars] = useState()
     const dispatch = useDispatch()
-    const data = useSelector((state) => state.carReducer.cars.data)
-
     const {token: { colorBgContainer }} = theme.useToken()
 
     useEffect(() => {
-        dispatch(loadData())
+        dispatch(getAllCars())
+            .then((action) => {
+                if (getAllCars.fulfilled.match(action)) {
+                    const getAll = action.payload;
+                    setCars(getAll);
+                    console.log(getAll);
+                } else if (getAllCars.rejected.match(action)) {
+                    const error = action.error;
+                    console.log(error)
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+            });
     }, [dispatch])
 
 
@@ -40,6 +52,21 @@ const HomeContent = () => {
     }
 
     const columns = [
+        {
+            title: 'Id',
+            dataIndex: 'id',
+            key: 'id'
+        },
+        {
+            title: 'User Firstname',
+            dataIndex: 'userFirstName',
+            key: 'userFirstName'
+        },
+        {
+            title: 'User Lastname',
+            dataIndex: 'userLastName',
+            key: 'userLastName'
+        },
         {
             title: 'Car Name',
             dataIndex: 'name',
@@ -79,8 +106,7 @@ const HomeContent = () => {
                     />
                     <DeleteFilled
                         onClick={() => {
-                            const id = parseInt(record.key)
-                            showDeleteModal(id)
+                            showDeleteModal(record.id)
                         }}
                         style={{
                             color: "red",
@@ -128,13 +154,12 @@ const HomeContent = () => {
                 <Col span={24}>
                     <Table
                         columns={columns}
-                        dataSource={data}
+                        dataSource={cars?.data}
                         size={"large"}
                         bordered={true}
                         pagination={{
                             position: ["bottomCenter"],
                             pageSize: 5,
-                            total: data.length,
                             showSizeChanger: false,
                             showQuickJumper: true
                         }}

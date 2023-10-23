@@ -1,12 +1,34 @@
 import {Button, Col, Divider, Flex, Form, Input, Row} from 'antd';
 import {LockOutlined, UserOutlined} from '@ant-design/icons';
 import styles from "./styles.module.css"
+import {useDispatch} from "react-redux";
+import {useNavigate} from "react-router-dom";
+import {loginUser} from "../../redux/userSlice.js";
 
 const LoginForm = () => {
     const [form] = Form.useForm()
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+
     const onFinish = (values) => {
-        console.log(values)
-        form.resetFields()
+        dispatch(loginUser(values))
+            .then((login) => {
+                console.log(login)
+                if (login.payload.success === true) {
+                    navigate("/home")
+                    form.resetFields()
+                    localStorage.clear()
+                    localStorage.setItem("isAuth", JSON.stringify({
+                        isActive: "true",
+                        userId: login.payload.data.id,
+                        user: login.payload.data.username
+                    }))
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+                localStorage.setItem("isAuth", JSON.stringify({isActive: "false", userId: 0}))
+            })
     }
 
     return (
