@@ -1,6 +1,7 @@
 import {Button, Col, Divider, Flex, Form, Input, message, Modal, Row, Typography} from "antd";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {useEffect} from "react";
+import {editCar} from "../../redux/carSlice.js";
 
 const {Title} = Typography
 // eslint-disable-next-line react/prop-types
@@ -9,6 +10,7 @@ const CarEditModal = ({isEditModalOpen, setIsEditModalOpen}) => {
     const [messageApi, contextHolder] = message.useMessage();
     const key = 'editCar';
     const selectedCar = useSelector((state) => state.carReducer.selectedCar)
+    const dispatch = useDispatch()
 
     useEffect(() => {
         form.setFieldsValue({
@@ -22,8 +24,14 @@ const CarEditModal = ({isEditModalOpen, setIsEditModalOpen}) => {
     }, [form, selectedCar])
 
     const onFinish = async (values) => {
+        const data = localStorage.getItem("isAuth")
+        const parseData = data !== null ? JSON.parse(data) : null
+
+
+
         const updateCar = {
-            key: selectedCar.key,
+            id: selectedCar.id || 0,
+            userId: parseData?.userId,
             ...values
         }
 
@@ -33,29 +41,35 @@ const CarEditModal = ({isEditModalOpen, setIsEditModalOpen}) => {
             content: 'The update is in progress...'
         })
 
-        try {
-            setTimeout(() => {
-                messageApi.open({
-                    key,
-                    type: 'success',
-                    content: 'Update process successful',
-                    duration: 2
-                })
-                setIsEditModalOpen(false)
-                form.resetFields()
-            }, 1000)
-            console.log(JSON.stringify(updateCar))
-        } catch (error) {
-            setTimeout(() => {
-                messageApi.open({
-                    key,
-                    type: 'error',
-                    content: `Update process failed. Error :  ${error}`,
-                    duration: 2
-                })
-                setIsEditModalOpen(false)
-            }, 2000)
-        }
+        dispatch(editCar(updateCar))
+            .then((edit) => {
+                console.log(edit)
+                if (edit.payload.success) {
+                    setTimeout(() => {
+                        messageApi.open({
+                            key,
+                            type: 'success',
+                            content: 'Update process successful',
+                            duration: 2
+                        })
+                        setIsEditModalOpen(false)
+                        window.location.reload()
+                        form.resetFields()
+                    }, 1500)
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+                setTimeout(() => {
+                    messageApi.open({
+                        key,
+                        type: 'error',
+                        content: `Update process failed. Error :  ${error}`,
+                        duration: 2
+                    })
+                    setIsEditModalOpen(false)
+                }, 1500)
+            })
     }
     const handleEditOk = () => {
         setIsEditModalOpen(false)

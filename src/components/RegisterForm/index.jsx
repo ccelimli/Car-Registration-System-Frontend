@@ -1,13 +1,27 @@
 import {Button, Col, Divider, Flex, Form, Input, Row} from 'antd'
 import {LockOutlined, UserOutlined} from '@ant-design/icons'
 import styles from "./styles.module.css"
+import {useDispatch} from "react-redux";
+import {useNavigate} from "react-router-dom";
+import {registerUser} from "../../redux/userSlice.js";
 
 const RegisterForm = () => {
     const [form] = Form.useForm()
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
 
-    const onFinish = (values) => {
-        console.log(values)
-        form.resetFields()
+    const onFinish = async (values) => {
+        dispatch(registerUser(values))
+            .then((register) => {
+                console.log(register)
+                if (register.payload.success === true) {
+                    navigate("/")
+                    form.resetFields()
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+            })
     }
 
     return (
